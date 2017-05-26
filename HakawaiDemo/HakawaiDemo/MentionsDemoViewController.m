@@ -27,6 +27,10 @@ BOOL HKW_systemVersionIsAtLeast(NSString *version);
 
 @implementation MentionsDemoViewController
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Add a border to the text view to make it look nicer
@@ -69,6 +73,8 @@ BOOL HKW_systemVersionIsAtLeast(NSString *version);
         mentionsPlugin.stateChangeDelegate = [MentionsManager sharedInstance];
         self.textView.controlFlowPlugin = mentionsPlugin;
     }
+    //add for test change attributeText bug
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidChange:) name:UITextViewTextDidChangeNotification object:nil];
 }
 
 
@@ -81,6 +87,16 @@ BOOL HKW_systemVersionIsAtLeast(NSString *version);
 - (IBAction)listMentionsButtonTapped {
     NSArray *mentions = [self.plugin mentions];
     NSLog(@"There are %ld mention(s): %@", (unsigned long)[mentions count], mentions);
+}
+
+
+////add for test change attributeText bug
+- (void)textDidChange:(id)sender {
+    NSRange range = self.textView.selectedRange;
+    NSMutableAttributedString *newAttributedText = [[NSMutableAttributedString alloc] initWithAttributedString:self.textView.attributedText];
+    [newAttributedText setAttributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:18]} range:NSMakeRange(0, self.textView.text.length)];
+    self.textView.attributedText = newAttributedText;
+    self.textView.selectedRange = range;
 }
 
 @end
